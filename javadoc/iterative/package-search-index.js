@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"info.kgeorgiy.ja.gordienko.iterative"},{"l":"info.kgeorgiy.java.advanced.iterative"}];updateSearchResults();
