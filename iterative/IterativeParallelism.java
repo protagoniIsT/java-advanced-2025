@@ -107,6 +107,7 @@ public class IterativeParallelism implements ScalarIP {
     public <T> int argMax(int threads, List<T> values, Comparator<? super T> comparator) throws InterruptedException {
         return argExtremal(threads, values, comparator);
     }
+
     @Override
     public <T> int argMin(int threads, List<T> values, Comparator<? super T> comparator) throws InterruptedException {
         return argExtremal(threads, values, comparator.reversed());
