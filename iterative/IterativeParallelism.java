@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 /**
  * Class that allows to perform multiple tasks using iterative parallelism.
+ *
  * @author Konstantin Gordienko
  */
 public class IterativeParallelism implements ScalarIP {
@@ -51,7 +52,7 @@ public class IterativeParallelism implements ScalarIP {
         int actualThreadCount = Math.min(threads, values.size());
         List<R> results = new ArrayList<>(Collections.nCopies(actualThreadCount, null));
         Thread[] threadPool = new Thread[actualThreadCount];
-        List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
+        final List<Throwable> exceptions = Arrays.asList(new Exception[actualThreadCount]);
 
         int partitionSize = values.size() / actualThreadCount;
         int remain = values.size() % actualThreadCount;
@@ -61,25 +62,34 @@ public class IterativeParallelism implements ScalarIP {
             int to = start + partitionSize + (i < remain ? 1 : 0);
             final int index = i;
             start = to;
+
+            final int finalIndex = i;
             threadPool[i] = Thread.ofPlatform().start(() -> {
                 try {
                     results.set(index, task.apply(from, to));
                 } catch (Throwable e) {
-                    exceptions.add(e);
+                    exceptions.set(finalIndex, e);
                 }
             });
         }
 
         for (Thread thread : threadPool) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                exceptions.add(e);
-                Thread.currentThread().interrupt();
+            while (true) {
+                try {
+                    thread.join();
+                    break;
+                } catch (InterruptedException e) {
+                    exceptions.add(e);
+                    Thread.currentThread().interrupt();
+                }
             }
         }
 
-        if (!exceptions.isEmpty()) {
+        final List<Throwable> exceptionList = exceptions.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (!exceptionList.isEmpty()) {
             InterruptedException ie = new InterruptedException("Exception in one or more threads occurred");
             for (Throwable t : exceptions) {
                 ie.addSuppressed(t);
@@ -103,16 +113,25 @@ public class IterativeParallelism implements ScalarIP {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int argMax(int threads, List<T> values, Comparator<? super T> comparator) throws InterruptedException {
         return argExtremal(threads, values, comparator);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int argMin(int threads, List<T> values, Comparator<? super T> comparator) throws InterruptedException {
         return argExtremal(threads, values, comparator.reversed());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int indexOf(int threads, List<T> values, Predicate<? super T> predicate) throws InterruptedException {
         if (values.isEmpty()) return -1;
@@ -128,12 +147,18 @@ public class IterativeParallelism implements ScalarIP {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> int lastIndexOf(int threads, List<T> values, Predicate<? super T> predicate) throws InterruptedException {
         int idx = indexOf(threads, values.reversed(), predicate);
         return idx == -1 ? -1 : values.size() - 1 - idx;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> long sumIndices(int threads, List<? extends T> values, Predicate<? super T> predicate) throws InterruptedException {
         return performParallel(threads, values,
