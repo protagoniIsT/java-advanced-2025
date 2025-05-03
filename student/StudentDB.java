@@ -15,7 +15,7 @@ public class StudentDB implements StudentQuery {
 
     private static final Comparator<Student> NAME_COMPARATOR = Comparator.comparing(Student::firstName)
                                                                          .thenComparing(Student::lastName)
-                                                                         .thenComparing(Student::groupName);
+                                                                         .thenComparing(Student::id);
 
     private <T, R> T getProperties(Collection<Student> students,
                                    Function<Student, R> mapper,
