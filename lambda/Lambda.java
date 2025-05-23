@@ -56,7 +56,6 @@ public class Lambda implements EasyLambda {
                                                                     childrenExtractor,
                                                                     sizeEstimator,
                                                                     characteristics);
-
             }
 
             @Override

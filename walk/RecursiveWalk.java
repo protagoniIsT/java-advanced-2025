@@ -1,5 +1,6 @@
 package info.kgeorgiy.ja.gordienko.walk;
 
-public class RecursiveWalk {
+import java.util.ArrayList;
 
+public class RecursiveWalk {
 }

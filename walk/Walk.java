@@ -32,7 +32,6 @@ public class Walk {
         } catch (SecurityException e) {
             System.err.printf("Error: reading permission denied for file '%s':%n%s%n", filePath, e.getMessage());
         }
-
         return sb.toString();
     }
 
