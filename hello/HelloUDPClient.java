@@ -19,13 +19,13 @@ public class HelloUDPClient implements NewHelloClient {
     public void newRun(List<Request> requests, int threads) {
         ExecutorService threadPool = Executors.newFixedThreadPool(threads);
         IntStream.rangeClosed(1, threads).<Runnable>mapToObj(threadNum -> () -> sendRequestsAndAwaitResponse(requests, threadNum))
-                .forEachOrdered(threadPool::submit);
+                         .forEachOrdered(threadPool::submit);
         threadPool.close();
     }
 
     private void sendRequestsAndAwaitResponse(List<Request> requests, int threadNum) {
         try (DatagramSocket socket = new DatagramSocket()) {
-            socket.setSoTimeout(10);
+            socket.setSoTimeout(100);
             byte[] buf = new byte[socket.getReceiveBufferSize()];
             DatagramPacket response = new DatagramPacket(buf, buf.length);
 

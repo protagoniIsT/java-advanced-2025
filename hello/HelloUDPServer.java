@@ -67,8 +67,12 @@ public class HelloUDPServer implements HelloServer {
 
     @Override
     public void close() {
-        if (socket != null && !socket.isClosed()) socket.close();
-        if (threadPool != null) threadPool.close();
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
+        if (threadPool != null) {
+            threadPool.close();
+        }
     }
 
     public static void main(String[] args) {
